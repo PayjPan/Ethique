@@ -136,26 +136,27 @@ from aif360.metrics import ClassificationMetric
 #  - On créer un dataframe (results) qui contient le $Y$, $\hat{Y}$ et la variable sensible en binaire
 
 # %%
-y_test = pd.Series(model.predict(X_test), index=X_test.index, name='test')
-y_pred = pd.Series(y_test, index=X_test.index, name='pred')
+y_test = pd.Series(y_test, index=X_test.index, name='default')
+y_pred = pd.Series(model.predict(X_test), index=X_test.index, name='default')
 sex_bin = X_test.sex.map({'male': 0, 'female': 1})
 
-results = pd.concat([y_test, y_pred, sex_bin], axis=1)
+results_test = pd.concat([y_test, sex_bin], axis=1)
+results_pred = pd.concat([y_pred, sex_bin], axis=1)
 
-results.head(3)
+results_test.head(3)
 
 # %% [markdown]
 #  - On utilise l'objet BinaryLabelDataset en précisant le label et la variable sensible. Un pour les prédictions et un pour les tests. On fait également bien attention à préciser que le label 1 n'est pas positif pour la personne, il correspond à une prédiction de défaut.
 
 # %%
-bld_test = BinaryLabelDataset(df=results,
-                              label_names=['test'], 
+bld_test = BinaryLabelDataset(df=results_test,
+                              label_names=['default'], 
                               protected_attribute_names=['sex'],
                               favorable_label=0, 
                               unfavorable_label=1)
 
-bld_pred = BinaryLabelDataset(df=results,
-                              label_names=['pred'], 
+bld_pred = BinaryLabelDataset(df=results_pred,
+                              label_names=['default'], 
                               protected_attribute_names=['sex'],
                               favorable_label=0, 
                               unfavorable_label=1)
